@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JUSTALK is a simple no SQL, no hassle discussion forum for groups and small teams.">
+    <title>JUSTALK</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]>
+      <!-->
+      <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/grids-responsive-min.css">
+    <!--<![endif]-->
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/forum.css">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+  </head>
+  
+  <body>
+    <div class="header">
+      <div class="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
+        <div class="content">
+          <a class="pure-menu-heading" href="/">MONDIS.IO</a>
+          <ul id="">
+            <li class="pure-menu-selected">
+              <a href="#/">
+                <i class="fa fa-list-ul"></i>
+              </a>
+            </li>
+            <li>
+              <a href="#/feed">
+                <i class="fa fa-bullhorn"></i>
+              </a>
+            </li>
+            <li>
+              <a href="#/messages">
+                <i class="fa fa-bell"></i>
+              </a>
+            </li>
+            <li>
+              <a href="#/users">
+                <i class="fa fa-user"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content-wrapper"><div class="content"></div></div>
+    <div class="footer l-box is-center">MONDIS.IO is written by eugene@LIKALO.com using YUI and PURE</div>
+    
+    <script type="text/x-handlebars-template" id="post-template">
+        <div class="p-icon pure-u-1-8">
+          <a href="{{authorLink.URL}}"><img alt="{{authorLink.user}}" src="{{authorLink.avatar}}" /></a>
+        </div>
+        <div class="p-box pure-u-3-4">
+            <h3><a href="{{authorLink.URL}}" class="p-title no-change">{{authorLink.user}}</a> says:</h3>
+          <span class="font-size-small text-color-gray">
+             under <a href="{{parentLink.URL}}" class="no-change">{{parentLink.title}}</a>
+             on {{dateTime}}
+          </span>
+          {{#if tagLinks}}
+          <ul class="f-tags">
+              {{#each tagLinks}}
+              <li><a class="f-tag background-color-red text-color-white" href="{{this.URL}}">{{this.tag}}</a></li>
+              {{/each}}
+          </ul>
+          {{/if}}
+          <p>{{content}}</p>
+        <div class="pure-g p-controls">
+          {{#if canEdit}}
+            <div class="pure-u-1-2">
+              <a class="pure-button button-small action-edit" href="" data-postID="{{sysID}}"><i class="fa fa-pencil"></i> Edit</a>
+              <span class="font-color-gray space-left-1"><i class="fa fa-user"></i> {{rate}}</span>
+            </div>
+          {{else}}
+            <div class="pure-u-1-2">
+              <span class="button-group"><a class="pure-button pure-button-secondary font-weight-bold button-small action-rateup" href="#" data-postID="{{sysID}}">+1</a><a class="pure-button button-small action-ratedown" href="#" data-postID="{{sysID}}">-</a></span><span class="font-color-gray space-left-1"><i class="fa fa-user"></i> {{rate}}</span>
+            </div>
+          {{/if}}
+          <div class="pure-u-1-2 is-right p-indicators">{{#if canEdit}}<span><i class="fa fa-mail-reply"></i> {{replyCount}}</span>{{else}}<a class="pure-button pure-button-secondary button-small action-reply" href="#" data-postID="{{sysID}}"><i class="fa fa-mail-reply"> {{replyCount}}</i></i></a>{{/if}}</div>
+        </div>
+        {{#if relatedUsers}}
+          <div class="pure-u-1 p-users">
+            <ul>
+              {{#each relatedUsers}}
+              <li class="p-icon"><a href="{{user.URL}}"><img alt="{{user.user}}" src="{{user.avatar}}" /></a></li>
+              {{/each}}
+            </ul>
+          </div>
+        {{/if}}
+        </div>
+        <div class="d-indicator pure-u-1-8">
+          {{#if type}}
+          <i class="fa fa-list-ul"></i>
+          {{/if}}
+        </div>
+    </script>
+  
+    <script type="text/x-handlebars-template" id="message-template">
+    
+    </script>
+  
+    <script type="text/x-handlebars-template" id="user-template">
+    
+    </script>
+  
+    <script src="./js/vendor/yui-min.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+
+</html>
