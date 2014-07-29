@@ -10,7 +10,7 @@ YUI.add('md-app', function (Y) {
     PostView = Y.MONDIS.Views.Post,
     MessageView = Y.MONDIS.Views.Message,
     UserView = Y.MONDIS.Views.User;
-
+  
   App = Y.Base.create('App', Y.App, [], {
     serverRouting: false,
     initializer: function () {
@@ -40,6 +40,9 @@ YUI.add('md-app', function (Y) {
       
       return this;
     },
+    renderPageHeader: function (title) {
+      return this.get('pageHeaderTemplate').replace('{{title}}', title);
+    },
     render: function () {
         var filter = this.get('filter');
       //<<Select right menu item
@@ -57,6 +60,7 @@ YUI.add('md-app', function (Y) {
       
       switch(route) {
           case '':
+            content.append(this.renderPageHeader('Discussions'));
           case 'posts':
             posts = this.get('posts').getFilteredList(filter);
             if(posts.size()){
@@ -65,21 +69,25 @@ YUI.add('md-app', function (Y) {
                 content.append(postView.get('container'));
               }, this);
             }else
-              content.setHTML('<h2 class="content-head">No discussions or posts</h2><p>No discussions or posts have been found. You should create one.</p>');
+              content.append(this.renderPageHeader('It\'s empty!'))
+                    .append('<p>No discussions or posts have been found. You should create one.</p>');
           break;
           case 'feed':
-          
+            content.append(this.renderPageHeader('My Posts'));
           break;
           case 'messages':
+            content.append(this.renderPageHeader('My Messages'));
           
           break;
           case 'users':
-          
+            content.append(this.renderPageHeader('User Prefferences'))
+                  .append('<p>NOthing here yet</p>');          
           break;
           default:
             //We could not find the page we were looking for
             //Show 404
-            content.setHTML('<h2 class="content-head">System can not find the page you are looking for - 404</h2><p>If you think there is a mistake please contact the system administrator.</p>');
+            content.append(this.renderPageHeader('System can not find the page you are looking for - 404'))
+                  .append('<p>If you think there is a mistake please contact the system administrator.</p>');
       }
         
       return this;
@@ -100,36 +108,35 @@ YUI.add('md-app', function (Y) {
       this.set('filter', {path: req.path});
     },
     
-    routeUnknown: function(){
+    routeUnknown: function(req, res){
       console.log("At unknown");
       this.set('filter', {path: req.path});
     }
 
   }, {
     ATTRS: {
-
+      serverRoot: function() {
+        return 'http://127.0.0.1:56406/';
+      },
       //Application settings
       filter: {
         value: false,
         setter: function(query, name) {
           return Y.merge({
               path: '/',
+              type: 'feed',
+              author: false,
               slug: false,
               sort: 'date',
               dion: 'asc',
               tags: false,
-              keyword: false
+              keyword: false,
+              limit: 10,
+              page: 1,
+              hierarchy: true,
+              ordered: true
             }, query);
         }
-//        type: 'feed',
-//        tags: null,
-//        author: null,
-//        sort: 'date',
-//        sortDirection: 'asc',
-//        limit: 10,
-//        page: 1,
-//        hierarchy: true,
-//        ordered: true
       },
       //Application data
       users: {
@@ -153,6 +160,11 @@ YUI.add('md-app', function (Y) {
       footerContainer: {
         valueFn: function () {
           return Y.one('.footer');
+        }
+      },
+      pageHeaderTemplate: {
+        valueFn: function () {
+          return Y.one('#page-header-template').getHTML();
         }
       },
 

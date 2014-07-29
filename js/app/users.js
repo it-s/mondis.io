@@ -13,7 +13,8 @@ YUI.add('md-users', function (Y) {
   // ---- Users Model
   // ----*******************---- //
   // --------------------------- //
-  UserModel = Y.Base.create('user', Y.Model, [], {
+  UserModel = Y.Base.create('user', Y.Model, [Y.ModelSync.Local], {
+		  root: 'mondis',
     idAttribute: 'sysID',
 
     //Actions
@@ -88,7 +89,7 @@ YUI.add('md-users', function (Y) {
       //Convinience methods
       URL: {
         getter: function () {
-          return Helpers.Sys().serverRoot + '#/users/' + this.get('nick');
+          return Helpers.Sys('serverRoot') + '#/users/' + this.get('nick');
         },
         readOnly: true
       },
@@ -110,7 +111,8 @@ YUI.add('md-users', function (Y) {
   // ---- Current User Model
   // ----*******************---- //
   // --------------------------- //
-  CurrentUserModel = Y.Base.create('user', UserModel, [], {
+  CurrentUserModel = Y.Base.create('me', UserModel, [], {
+		  root: 'mondis',
 
     //Actions
     rate: function (post) {
@@ -203,7 +205,8 @@ YUI.add('md-users', function (Y) {
   // ---- Admin User Model
   // ----*******************---- //
   // --------------------------- //
-  AdminUserModel = Y.Base.create('user', CurrentUserModel, [], {
+  AdminUserModel = Y.Base.create('admin', CurrentUserModel, [], {
+		  root: 'mondis',
   }, {
     ATTRS: {
       isAdmin: {
@@ -217,7 +220,8 @@ YUI.add('md-users', function (Y) {
   // ---- Users Model list
   // ----*******************---- //
   // --------------------------- //
-  UserList = Y.Base.create('users', Y.ModelList, [], {
+  UserList = Y.Base.create('users', Y.ModelList, [Y.ModelSync.Local], {
+		  root: 'mondis',
     model: UserModel,
 
     CurrentUser: function (data) {

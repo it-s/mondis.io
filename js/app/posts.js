@@ -13,9 +13,10 @@ YUI.add('md-posts', function (Y) {
   // ----*******************---- //
   // --------------------------- //
 
-  PostModel = Y.Base.create('post', Y.Model, [], {
+  PostModel = Y.Base.create('post', Y.Model, [Y.ModelSync.Local], {
     idAttribute: 'sysID',
 
+		  root: 'mondis',
     //Actions
 
     upRate: function () {
@@ -104,7 +105,7 @@ YUI.add('md-posts', function (Y) {
       return Y.Array.map(tags, function (tag) {
         return {
           tag: tag,
-          URL: Helpers.Sys().serverRoot + '#/tagged/' + tag
+          URL: Helpers.Sys('serverRoot') + '#/tagged/' + tag
         }
       });
 
@@ -281,7 +282,7 @@ YUI.add('md-posts', function (Y) {
         //Convinience method
         getter: function () {
           //TODO we need to somehow make place specific URLs customizable and defined in config
-          return Helpers.Sys().serverRoot + '#/posts/' + this.get('slug');
+          return Helpers.Sys('serverRoot') + '#/posts/' + this.get('slug');
         },
         readOnly: true
       },
@@ -335,7 +336,8 @@ YUI.add('md-posts', function (Y) {
   // ---- Posts List Model
   // ----*******************---- //
   // --------------------------- //
-  PostList = Y.Base.create('posts', Y.ModelList, [], {
+  PostList = Y.Base.create('posts', Y.ModelList, [Y.ModelSync.Local], {
+		  root: 'mondis',
     // The related Model for our Model List.
     model: PostModel,
 
@@ -504,8 +506,8 @@ YUI.add('md-posts', function (Y) {
     getFilteredList: function (filter) {
       var defaults = {
         type: 'feed',
-        tags: null,
-        author: null,
+        tags: false,
+        author: false,
         sort: 'date',
         sortDirection: 'asc',
         limit: 10,
@@ -558,11 +560,11 @@ YUI.add('md-posts', function (Y) {
         });
 
       //Filter by user ID if any
-      if (opts.user)
+      if (opts.author)
         list = list.filter({
           asList: true
         }, function (post) {
-          return post.isOwnedBy(opts.user);
+          return post.isOwnedBy(opts.author);
         });
 
       //Sort
@@ -573,7 +575,7 @@ YUI.add('md-posts', function (Y) {
         case 'rate':
           list.comparator = this.sortByRatingComparator;
           break;
-        default:
+        default: //date
           list.comparator = this.sortByDateComparator;
       }
       if (opts.sortDirection === "asc") list.sort();

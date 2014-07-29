@@ -209,9 +209,7 @@ YUI.add('md-helpers', function (Y) {
   Helpers.Template = function(name) {
     return Helpers.App.getCompiledTemplate(name);
   }
-  Helpers.Sys = function() {
-    return window.app.get('sys');
-  }
+  Helpers.Sys = Helpers.App;
   Helpers.Users = function(name, value) {
     if(typeof(name) == "undefined" && typeof(value) === "undefined")
       window.app.get('users');
