@@ -49,7 +49,7 @@ YUI.add('md-views', function (Y) {
       var container = this.get('container');
       var model = this.get('model');
 
-      container.setHTML(this.template(model.toJSON())).addClass('p-one').addClass('pure-g');
+      container.setHTML(this.template(model.toHandlebars())).addClass('p-one').addClass('pure-g');
 
       return this;
     },

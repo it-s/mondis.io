@@ -14,8 +14,32 @@ YUI.add('md-users', function (Y) {
   // ----*******************---- //
   // --------------------------- //
   UserModel = Y.Base.create('user', Y.Model, [Y.ModelSync.Local], {
-		  root: 'mondis',
+    root: 'mondisUsers',
     idAttribute: 'sysID',
+    synchAttributes: ['sysID', 'nick', 'timezone', 'avatar', 'lastOnline'],
+
+    toJSON: function () {
+      var e = {},
+          synch = this.synchAttributes;
+      for( var key in this._attrs ) {
+        if(synch.indexOf(key)>-1)
+          e[key] = this.get(key);
+      }      
+      return e;
+    },
+    toHandlebars: function () {
+        var attrs = this.getAttrs();
+ 
+        delete attrs.clientId;
+        delete attrs.destroyed;
+        delete attrs.initialized;
+ 
+        if (this.idAttribute !== 'id') {
+            delete attrs.id;
+        }
+ 
+        return attrs;
+    },
 
     //Actions
 
@@ -62,7 +86,7 @@ YUI.add('md-users', function (Y) {
   }, {
     ATTRS: {
       sysID: {
-        value: Y.guid('post')
+        value: Y.guid('user')
       },
       nick: {
         value: 'nick',
@@ -89,7 +113,7 @@ YUI.add('md-users', function (Y) {
       //Convinience methods
       URL: {
         getter: function () {
-          return Helpers.Sys('serverRoot') + '#/users/' + this.get('nick');
+          return Helpers.App('serverRoot') + '#/users/' + this.get('nick');
         },
         readOnly: true
       },
@@ -112,7 +136,8 @@ YUI.add('md-users', function (Y) {
   // ----*******************---- //
   // --------------------------- //
   CurrentUserModel = Y.Base.create('me', UserModel, [], {
-		  root: 'mondis',
+    root: 'mondisMe',
+    synchAttributes: ['sysID', 'nick', 'timezone', 'avatar', 'lastOnline', 'following', 'rated', 'commented', 'isAdmin'],
 
     //Actions
     rate: function (post) {
@@ -202,43 +227,14 @@ YUI.add('md-users', function (Y) {
   });
 
   // --------------------------- //
-  // ---- Admin User Model
-  // ----*******************---- //
-  // --------------------------- //
-  AdminUserModel = Y.Base.create('admin', CurrentUserModel, [], {
-		  root: 'mondis',
-  }, {
-    ATTRS: {
-      isAdmin: {
-        value: true,
-        readOnly: true
-      }
-    }
-  });
-
-  // --------------------------- //
   // ---- Users Model list
   // ----*******************---- //
   // --------------------------- //
   UserList = Y.Base.create('users', Y.ModelList, [Y.ModelSync.Local], {
-		  root: 'mondis',
-    model: UserModel,
-
-    CurrentUser: function (data) {
-      if (typeof(data) == "undefined") return this.get('currentUser');
-      this.set('currentUser', new Y.MONDIS.CurrentUserModel(data));
-    },
-
-    AdminUser: function (data) {
-      if (typeof(data) == "undefined") return this.get('currentUser');
-      this.set('currentUser', new Y.MONDIS.AdminUserModel(data));
-    }
+    root: 'mondisUsers',
+    model: UserModel
   }, {
-    ATTRS: {
-      currentUser: {
-        value: null
-      }
-    }
+    ATTRS: {}
   });
 
   Y.MONDIS.Models.User = UserModel;
@@ -247,5 +243,5 @@ YUI.add('md-users', function (Y) {
   Y.MONDIS.Models.AdminUser = AdminUserModel;
 
 }, '0.0.1', {
-  requires: ['model', 'model-list', 'md-helpers']
+  requires: ['model', 'model-list', 'gallery-model-sync-local', 'md-helpers']
 });

@@ -5,137 +5,157 @@ YUI.add('md-app', function (Y) {
 
   var App,
     Helpers = Y.MONDIS.Helpers,
+    CurrentUser = Y.MONDIS.Models.CurrentUser,
     Users = Y.MONDIS.Models.UserList,
     Posts = Y.MONDIS.Models.PostList,
     PostView = Y.MONDIS.Views.Post,
     MessageView = Y.MONDIS.Views.Message,
     UserView = Y.MONDIS.Views.User;
-  
+
   App = Y.Base.create('App', Y.App, [], {
     serverRouting: false,
     initializer: function () {
-      
+
+      //Create refference point
+      Y.MONDIS.app = this;
+
       //Set default filter values
       this.set('filter', {});
       //We render view every time filter is updated
       this.after("filterChange", this.render, this);
-      
+
       //Init users and posts
+      this.set('currentUser', new CurrentUser());
       this.set('users', new Users());
       this.set('posts', new Posts());
-      
-      var users = this.get('users'),
-          posts = this.get('posts');
-      
+
+      var currentUser = this.get('currentUser'),
+        users = this.get('users'),
+        posts = this.get('posts');
+
+      currentUser.load();
+
       users.load();
-      
+
       posts.after(['add', 'remove', 'reset'], this.render, this);
       posts.load();
-      
+
       this.once('ready', function () {
         if (this.hasRoute(this.getPath())) {
           this.dispatch();
         }
       });
-      
+
       return this;
     },
     renderPageHeader: function (title) {
       return this.get('pageHeaderTemplate').replace('{{title}}', title);
     },
     render: function () {
-        var filter = this.get('filter');
+      var filter = this.get('filter');
       //<<Select right menu item
-        var header = this.get('headerContainer'),
-            route = filter.path.toRoute()[0],
-            selection = (header.one('a[href*=' + route + ']')) || (header.one('li>a'));
-        header.all('li').removeClass('pure-menu-selected');
-        //Get current route to place the right highlight
-        if (selection) selection.get('parentNode').addClass('pure-menu-selected');
+      var header = this.get('headerContainer'),
+        route = filter.path.toRoute()[0],
+        selection = (header.one('a[href*=' + route + ']')) || (header.one('li>a'));
+      header.all('li').removeClass('pure-menu-selected');
+      //Get current route to place the right highlight
+      if (selection) selection.get('parentNode').addClass('pure-menu-selected');
       //Selected>>
       //Render current page content
-        var content = this.get('pageContainer'),
-            posts;
-        content.empty();
-      
-      switch(route) {
-          case '':
-            content.append(this.renderPageHeader('Discussions'));
-          case 'posts':
-            posts = this.get('posts').getFilteredList(filter);
-            if(posts.size()){
-              posts.each(function(post){
-                var postView = new PostView({model:post});
-                content.append(postView.get('container'));
-              }, this);
-            }else
-              content.append(this.renderPageHeader('It\'s empty!'))
-                    .append('<p>No discussions or posts have been found. You should create one.</p>');
+      var content = this.get('pageContainer'),
+        posts;
+      content.empty();
+
+      switch (route) {
+        case '':
+          content.append(this.renderPageHeader('Discussions'));
+        case 'posts':
+          posts = this.get('posts').getFilteredList(filter);
+          if (posts.size()) {
+            posts.each(function (post) {
+              var postView = new PostView({
+                model: post
+              });
+              content.append(postView.render().get('container'));
+            }, this);
+          } else
+            content.append(this.renderPageHeader('It\'s empty!'))
+              .append('<p>No discussions or posts have been found. You should create one.</p>');
           break;
-          case 'feed':
-            content.append(this.renderPageHeader('My Posts'));
+        case 'feed':
+          content.append(this.renderPageHeader('My Posts'));
           break;
-          case 'messages':
-            content.append(this.renderPageHeader('My Messages'));
-          
+        case 'messages':
+          content.append(this.renderPageHeader('My Messages'));
+
           break;
-          case 'users':
-            content.append(this.renderPageHeader('User Prefferences'))
-                  .append('<p>NOthing here yet</p>');          
+        case 'users':
+          content.append(this.renderPageHeader('User Prefferences'))
+            .append('<p>NOthing here yet</p>');
           break;
-          default:
-            //We could not find the page we were looking for
-            //Show 404
-            content.append(this.renderPageHeader('System can not find the page you are looking for - 404'))
-                  .append('<p>If you think there is a mistake please contact the system administrator.</p>');
+        default:
+          //We could not find the page we were looking for
+          //Show 404
+          content.append(this.renderPageHeader('System can not find the page you are looking for - 404'))
+            .append('<p>If you think there is a mistake please contact the system administrator.</p>');
       }
-        
+
       return this;
     },
-    
-    ruotePosts: function(req, res) {
+
+    ruotePosts: function (req, res) {
       console.log("At posts");
-      this.set('filter', Y.merge({path: req.path}, req.query, req.params));
+      this.set('filter', Y.merge({
+        path: req.path
+      }, req.query, req.params));
     },
-    
-    routeMessages: function(req, res){
+
+    routeMessages: function (req, res) {
       console.log("At messages");
-      this.set('filter', Y.merge({path: req.path},req.query, req.params));
+      this.set('filter', Y.merge({
+        path: req.path
+      }, req.query, req.params));
     },
-    
-    routeUsers: function(req, res){
+
+    routeUsers: function (req, res) {
       console.log("At users");
-      this.set('filter', {path: req.path});
+      this.set('filter', {
+        path: req.path
+      });
     },
-    
-    routeUnknown: function(req, res){
+
+    routeUnknown: function (req, res) {
       console.log("At unknown");
-      this.set('filter', {path: req.path});
+      this.set('filter', {
+        path: req.path
+      });
     }
 
   }, {
     ATTRS: {
-      serverRoot: function() {
-        return 'http://127.0.0.1:56406/';
+      serverRoot: {
+        valueFn: function () {
+          return 'http://127.0.0.1:56406/';
+        }
       },
       //Application settings
       filter: {
         value: false,
-        setter: function(query, name) {
+        setter: function (query, name) {
           return Y.merge({
-              path: '/',
-              type: 'feed',
-              author: false,
-              slug: false,
-              sort: 'date',
-              dion: 'asc',
-              tags: false,
-              keyword: false,
-              limit: 10,
-              page: 1,
-              hierarchy: true,
-              ordered: true
-            }, query);
+            path: '/',
+            type: 'feed',
+            author: false,
+            slug: false,
+            sort: 'date',
+            dion: 'asc',
+            tags: false,
+            keyword: false,
+            limit: 10,
+            page: 1,
+            hierarchy: true,
+            ordered: true
+          }, query);
         }
       },
       //Application data
@@ -171,17 +191,11 @@ YUI.add('md-app', function (Y) {
       //Convinience methods
 
       currentUser: {
-        getter: function () {
-            return this.get('users').get('currentUser');
-          },
-        setter: function (user, name) {
-          //We do not want this to happen
-          return;
-        }
+        value: null
       },
 
       currentPost: {
-        getter:  function () {
+        getter: function () {
           return this.get('posts').get('currentPost');
         },
         setter: function (post, name) {
@@ -193,36 +207,36 @@ YUI.add('md-app', function (Y) {
       serverRouting: {
         value: false
       },
-      
+
       routes: {
         value: [
           {
             path: '/',
-            callback: 'ruotePosts'            
+            callback: 'ruotePosts'
           },
           {
             path: '/posts',
-            callback: 'ruotePosts'            
+            callback: 'ruotePosts'
           },
           {
             path: '/posts/:slug',
-            callback: 'ruotePosts'            
+            callback: 'ruotePosts'
           },
           {
             path: '/feed',
-            callback: 'ruotePosts'            
+            callback: 'ruotePosts'
           },
           {
             path: '/messages',
-            callback: 'routeMessages'            
+            callback: 'routeMessages'
           },
           {
             path: '/users',
-            callback: 'routeUsers'            
+            callback: 'routeUsers'
           },
           {
             path: '/users/:slug',
-            callback: 'routeUsers'            
+            callback: 'routeUsers'
           },
           {
             path: '*',
@@ -259,11 +273,11 @@ YUI({
         },
         'md-users': {
           path: 'app/users.js',
-          requires: ['model', 'model-list', 'md-helpers']
+          requires: ['model', 'model-list', 'gallery-model-sync-local', 'md-helpers']
         },
         'md-posts': {
           path: 'app/posts.js',
-          requires: ['model', 'model-list', 'md-helpers']
+          requires: ['model', 'model-list', 'gallery-model-sync-local', 'md-helpers']
         },
         'md-views': {
           path: 'app/views.js',

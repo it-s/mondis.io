@@ -15,8 +15,31 @@ YUI.add('md-posts', function (Y) {
 
   PostModel = Y.Base.create('post', Y.Model, [Y.ModelSync.Local], {
     idAttribute: 'sysID',
+    root: 'mondisPosts',
+    synchAttributes: ['sysID', 'sysParentID', 'sysAuthorID', 'dateCreated', 'dateModified', 'tags', 'rate', 'slug', 'title', 'content'],
 
-		  root: 'mondis',
+    toJSON: function () {
+      var e = {},
+          synch = this.synchAttributes;
+      for( var key in this._attrs ) {
+        if(synch.indexOf(key)>-1)
+          e[key] = this.get(key);
+      }      
+      return e;
+    },
+    toHandlebars: function () {
+        var attrs = this.getAttrs();
+ 
+        delete attrs.clientId;
+        delete attrs.destroyed;
+        delete attrs.initialized;
+ 
+        if (this.idAttribute !== 'id') {
+            delete attrs.id;
+        }
+ 
+        return attrs;
+    },
     //Actions
 
     upRate: function () {
@@ -105,7 +128,7 @@ YUI.add('md-posts', function (Y) {
       return Y.Array.map(tags, function (tag) {
         return {
           tag: tag,
-          URL: Helpers.Sys('serverRoot') + '#/tagged/' + tag
+          URL: Helpers.App('serverRoot') + '#/tagged/' + tag
         }
       });
 
@@ -113,18 +136,21 @@ YUI.add('md-posts', function (Y) {
 
     //Setters
     _setTag: function (value, name) {
+      if(Y.Lang.isNull(value) || Y.Lang.isUndefined(value)) return;
       var tags = this.get('tags');
       if (!Helpers.Contains(tags, value)) {
         tags.push(value);
-        this.set('tags', tag);
+        this.set('tags', tags);
       }
     },
 
     _setSysTag: function (value, name) {
+      if(Y.Lang.isNull(value) || Y.Lang.isUndefined(value)) return;
       this._setTag(Helpers.Typefy(value));
     },
 
     _setDate: function (value, name) {
+      if(Y.Lang.isNull(value) || Y.Lang.isUndefined(value)) return;
       if (value && Y.Lang.isDate(value))
         return Helpers.DateUTC(value).toString();
       else
@@ -132,6 +158,7 @@ YUI.add('md-posts', function (Y) {
     },
 
     _setParent: function (value, name) {
+      if(Y.Lang.isNull(value) || Y.Lang.isUndefined(value)) return;
       if (Y.Lang.isObject(value)) {
         this.set('sysParentID', value.get('sysID'));
       } else if (Y.Lang.isString(value)) {
@@ -140,6 +167,7 @@ YUI.add('md-posts', function (Y) {
     },
 
     _setAuthor: function (value, name) {
+      if(Y.Lang.isNull(value) || Y.Lang.isUndefined(value)) return;
       if (Y.Lang.isObject(value)) {
         this.set('sysAuthorID', value.get('sysID'));
       } else if (Y.Lang.isString(value)) {
@@ -151,39 +179,49 @@ YUI.add('md-posts', function (Y) {
     ATTRS: {
       //Real ATTRS:
       sysID: {
-        value: Y.guid('post')
+        value: Y.guid('post'),
+        synch: true
       },
       sysParentID: {
-        value: null
+        value: null,
+        synch: true
       },
       sysAuthorID: {
-        value: 'admin'
+        value: 'admin',
+        synch: true
       },
       dateCreated: {
         value: Helpers.DateUTC().toString(),
-        setter: '_setDate'
+        setter: '_setDate',
+        synch: true
       },
       dateModified: {
         value: null,
-        setter: '_setDate'
+        setter: '_setDate',
+        synch: true
       },
       tags: {
-        value: []
+        value: [],
+        synch: true
       },
       rate: {
         value: 0,
         setter: function (value, name) {
-          return this.get('rate') + Helpers.toNumber(value);
-        }
+          return (this.get('rate') || 0) + Helpers.toNumber(value);
+        },
+        synch: true
       },
       slug: {
-        value: null
+        value: null,
+        synch: true
       },
       title: {
-        value: null
+        value: null,
+        synch: true
       },
       content: {
-        value: null
+        value: null,
+        synch: true
       },
       //Convinience methods:
       parent: {
@@ -192,7 +230,8 @@ YUI.add('md-posts', function (Y) {
           var id = this.get('sysParentID');
           return Y.Lang.isNull(id) ? null : Helpers.App().get('posts').getById(id);
         },
-        setter: '_setParent'
+        setter: '_setParent',
+        lazyAdd: true
       },
       parentLink: {
         //Convinience method
@@ -200,7 +239,8 @@ YUI.add('md-posts', function (Y) {
           var parent = this.get('parent');
           return Y.Lang.isNull(parent) ? null : parent.get('link');
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       author: {
         //Convinience method
@@ -208,7 +248,8 @@ YUI.add('md-posts', function (Y) {
           var id = this.get('sysAuthorID');
           return Y.Lang.isNull(id) ? null : Helpers.Users().getById(id);
         },
-        setter: '_setAuthor'
+        setter: '_setAuthor',
+        lazyAdd: true
       },
       authorLink: {
         //Convinience method
@@ -216,7 +257,8 @@ YUI.add('md-posts', function (Y) {
           var user = this.get('author');
           return Y.Lang.isNull(user) ? null : user.get('link');
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       dateTime: {
         //Convinience method
@@ -225,7 +267,8 @@ YUI.add('md-posts', function (Y) {
           var date = this.get('dateModified') || this.get('dateCreated');
           return Helpers.DateToSimpleString(date, Helpers.Me('timezone'));
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       type: {
         //Convinience method
@@ -236,16 +279,19 @@ YUI.add('md-posts', function (Y) {
           if (this.isMessage()) return 'message';
           return '';
         },
-        setter: '_setSysTag'
+        setter: '_setSysTag',
+        lazyAdd: true
       },
       tag: {
         //Convinience method
-        setter: '_setTag'
+        setter: '_setTag',
+        lazyAdd: true
       },
       tagLinks: {
         //Convinience method
         getter: '_getTagLinks',
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       userTags: {
         //Convinience method
@@ -254,7 +300,8 @@ YUI.add('md-posts', function (Y) {
             return tag.indexOf('sys') < 0;
           });
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       sysTags: {
         //Convinience method
@@ -263,7 +310,8 @@ YUI.add('md-posts', function (Y) {
             return tag.indexOf('sys') >= 0;
           });
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       relatedUsers: {
         //Convinience method
@@ -276,15 +324,17 @@ YUI.add('md-posts', function (Y) {
           //TODO
           return 0;
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       URL: {
         //Convinience method
         getter: function () {
           //TODO we need to somehow make place specific URLs customizable and defined in config
-          return Helpers.Sys('serverRoot') + '#/posts/' + this.get('slug');
+          return Helpers.App('serverRoot') + '#/posts/' + this.get('slug');
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       link: {
         //Convinience method
@@ -296,38 +346,44 @@ YUI.add('md-posts', function (Y) {
             URL: url
           };
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       path: {
         //Convinience method
         getter: '_getPath',
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       isOpen: {
         //Convinience method
         getter: 'isOpen',
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       isOwn: {
         //Convinience method
         getter: function () {
           return Helpers.Me().isAuthorTo(this);
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       isFavorite: {
         //Convinience method
         getter: function () {
           return Helpers.Me().isFollowing(this.get('sysID'));
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       },
       canEdit: {
         //Convinience method
         getter: function () {
-          return Helpers.Me().isAdmin() || this._isOwn();
+          return Helpers.Me().isAdmin() || this.get('isOwn');
         },
-        readOnly: true
+        readOnly: true,
+        lazyAdd: true
       }
     }
   });
@@ -337,7 +393,7 @@ YUI.add('md-posts', function (Y) {
   // ----*******************---- //
   // --------------------------- //
   PostList = Y.Base.create('posts', Y.ModelList, [Y.ModelSync.Local], {
-		  root: 'mondis',
+		  root: 'mondisPosts',
     // The related Model for our Model List.
     model: PostModel,
 
@@ -639,5 +695,5 @@ YUI.add('md-posts', function (Y) {
   Y.MONDIS.Models.PostList = PostList;
 
 }, '0.0.1', {
-  requires: ['model', 'model-list', 'md-helpers']
+  requires: ['model', 'model-list', 'gallery-model-sync-local', 'md-helpers']
 });

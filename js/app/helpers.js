@@ -107,7 +107,7 @@ YUI.add('md-helpers', function (Y) {
   var Helpers = {};
 
   Helpers.toNumber = function (str) {
-    return Y.Lang.isString(str) ? str.replace(/\D/g, '') : str;
+    return (Y.Lang.isString(str) ? str.replace(/\D/g, '') : str) * 1;
   }
 
   Helpers.DateUTC = function (d) {
@@ -201,45 +201,53 @@ YUI.add('md-helpers', function (Y) {
   //System Helpers
   Helpers.App = function(name, value) {
     if(typeof(name) == "undefined" && typeof(value) === "undefined")
-      return window.app;
-    if(typeof(name) == "undefined")
-      return window.app.get(name);
-    return window.app.set(name, value);
+      return Y.MONDIS.app;
+    if(typeof(value) == "undefined")
+      return Y.MONDIS.app.get(name);
+    return Y.MONDIS.app.set(name, value);
   }
   Helpers.Template = function(name) {
     return Helpers.App.getCompiledTemplate(name);
   }
   Helpers.Sys = Helpers.App;
   Helpers.Users = function(name, value) {
+    var src = Y.MONDIS.app.get('users');    
     if(typeof(name) == "undefined" && typeof(value) === "undefined")
-      window.app.get('users');
-    if(typeof(name) == "undefined")
-      return window.app.get('users').get(name);
-    return window.app.get('users').set(name, value);
+      return src;
+    if(src == null) return src;
+    if(typeof(value) == "undefined")
+      return src.get(name);
+    return src.set(name, value);
   }
   Helpers.Posts = function() {
+    var src = Y.MONDIS.app.get('posts');    
     if(typeof(name) == "undefined" && typeof(value) === "undefined")
-      return window.app.get('posts');
-    if(typeof(name) == "undefined")
-      return window.app.get('posts').get(name);
-    return window.app.get('posts').set(name, value);
+      return src;
+    if(src == null) return src;
+    if(typeof(value) == "undefined")
+      return src.get(name);
+    return src.set(name, value);
   }
   Helpers.Me = function(name, value) {
+    var src = Y.MONDIS.app.get('currentUser');    
     if(typeof(name) == "undefined" && typeof(value) === "undefined")
-      return window.app.get('currentUser');
-    if(typeof(name) == "undefined")
-      return window.app.get('currentUser').get(name);
-    return window.app.get('currentUser').set(name, value);
+      return src;
+    if(src == null) return src;
+    if(typeof(value) == "undefined")
+      return src.get(name);
+    return src.set(name, value);
   }
   Helpers.MeTzone = function() {
     return Helpers.Me('timezone');
   }
   Helpers.Post = function() {
+    var src = Y.MONDIS.app.get('currentPost');    
     if(typeof(name) == "undefined" && typeof(value) === "undefined")
-      return window.app.get('currentPost');
-    if(typeof(name) == "undefined")
-      return window.app.get('currentPost').get(name);
-    return window.app.get('currentPost').set(name, value);
+      return src;
+    if(src == null) return src;
+    if(typeof(value) == "undefined")
+      return src.get(name);
+    return src.set(name, value);
   } 
 
   // Set this Model List under our custom Y.MVC namespace.
