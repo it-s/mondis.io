@@ -63,13 +63,17 @@ YUI.add('md-app', function (Y) {
       //Selected>>
       //Render current page content
       var content = this.get('pageContainer'),
-        posts;
+          currentPost,
+          posts;
       content.empty();
 
       switch (route) {
         case '':
           content.append(this.renderPageHeader('Discussions'));
         case 'posts':
+          currentPost = this.get('currentPost');
+          if(currentPost)
+            content.append(new PostView({ model: currentPost }).render().get('container'));
           posts = this.get('posts').getFilteredList(filter);
           if (posts.size()) {
             posts.each(function (post) {
@@ -103,7 +107,7 @@ YUI.add('md-app', function (Y) {
       return this;
     },
 
-    ruotePosts: function (req, res) {
+    routePosts: function (req, res) {
       console.log("At posts");
       this.set('filter', Y.merge({
         path: req.path
@@ -135,7 +139,7 @@ YUI.add('md-app', function (Y) {
     ATTRS: {
       serverRoot: {
         valueFn: function () {
-          return 'http://127.0.0.1:56406/';
+          return 'http://127.0.0.1:45446/';
         }
       },
       //Application settings
@@ -212,19 +216,19 @@ YUI.add('md-app', function (Y) {
         value: [
           {
             path: '/',
-            callback: 'ruotePosts'
+            callback: 'routePosts'
           },
           {
             path: '/posts',
-            callback: 'ruotePosts'
+            callback: 'routePosts'
           },
           {
             path: '/posts/:slug',
-            callback: 'ruotePosts'
+            callback: 'routePosts'
           },
           {
             path: '/feed',
-            callback: 'ruotePosts'
+            callback: 'routePosts'
           },
           {
             path: '/messages',

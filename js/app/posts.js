@@ -561,6 +561,7 @@ YUI.add('md-posts', function (Y) {
 
     getFilteredList: function (filter) {
       var defaults = {
+        slug: false,
         type: 'feed',
         tags: false,
         author: false,
@@ -571,9 +572,16 @@ YUI.add('md-posts', function (Y) {
         hierarchy: true,
         ordered: true
       },
-        open = this.get('currentPost'),
+        open = null,
         opts = Y.Lang.isObject(filter) ? Y.merge(defaults, filter) : defaults,
         list = null;
+      
+      //Check if we have slug to filter under
+      if(opts.slug)
+        this.getBySlug(opts.slug).open();
+      else this.get('currentPost')&&this.get('currentPost').close();
+        
+      open = this.get('currentPost');
 
       //Get the post type we need
       switch (opts.type) {

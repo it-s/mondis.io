@@ -7,9 +7,67 @@ YUI.add('md-views', function (Y) {
     messageView,
     userView;
 
+  function ___test(a, b) {
+    if (b == undefined) return a!=null && a!=undefined && a != 0 && a != "" && a != false;
+    else return a === b
+  }
+
+  function ___testi(a, b) {
+    if (b == undefined) return a===null || a===undefined || a === 0 || a === "" || a === false;
+    else return a != b
+  }
+
+  Y.Handlebars.registerHelper('is', function (v1, v2, options) {
+    options = options || v2;
+    v2 = v2 === options ? undefined : v2;
+    if (___test(v1, v2)) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  Y.Handlebars.registerHelper('isnt', function (v1, v2, options) {
+    options = options || v2;
+    v2 = v2 === options ? undefined : v2;
+    if (___testi(v1, v2)) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  Y.Handlebars.registerHelper('isANDis', function (a, b, c, d, options) {
+    options = options || d || c;
+    d = d === options ? undefined : d;
+    c = c === options ? undefined : c;
+    if (___test(a, b) && ___test(c, d)) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  Y.Handlebars.registerHelper('isANDnot', function (a, b, c, d, options) {
+    options = options || d || c;
+    d = d === options ? undefined : d;
+    c = c === options ? undefined : c;
+    if (___test(a, b) && ___testi(c, d)) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  Y.Handlebars.registerHelper('notANDnot', function (a, b, c, d, options) {
+    options = options || d || c;
+    d = d === options ? undefined : d;
+    c = c === options ? undefined : c;
+    if (___testi(a, b) && ___testi(c, d)) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
   // -- Todo View -------------------
   postView = Y.Base.create('postView', Y.View, [], {
-    containerTemplate: '<div>',
+    containerTemplate: '<section>',
     // Compile our template using Handlebars.
     template: Y.Handlebars.compile(Y.one('#post-template').getHTML()),
 
@@ -49,7 +107,7 @@ YUI.add('md-views', function (Y) {
       var container = this.get('container');
       var model = this.get('model');
 
-      container.setHTML(this.template(model.toHandlebars())).addClass('p-one').addClass('pure-g');
+      container.setHTML(this.template(model.toHandlebars()));
 
       return this;
     },

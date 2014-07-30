@@ -61,13 +61,17 @@
     </script>
 
     <script type="text/x-handlebars-template" id="post-template">
+      {{#is isOpen}}<h1>{{title}}</h1>{{/is}}
+      <div class="pure-g">
         <div class="p-icon pure-u-1-8">
           <a href="{{authorLink.URL}}"><img alt="{{authorLink.user}}" src="{{authorLink.avatar}}" /></a>
         </div>
         <div class="p-box pure-u-3-4">
-            <h3><a href="{{authorLink.URL}}" class="p-title no-change">{{authorLink.user}}</a> says:</h3>
+          <h3>{{#isANDnot type "discussion" isOpen}}<a href="{{URL}}" class="d-title no-change">{{title}}</a>{{else}}<a href="{{authorLink.URL}}" class="p-title no-change">{{authorLink.user}}</a> says:{{/isANDnot}}</h3>
           <span class="font-size-small text-color-gray">
+            {{#if parent}}
              under <a href="{{parentLink.URL}}" class="no-change">{{parentLink.title}}</a>
+            {{/if}}
              on {{dateTime}}
           </span>
           {{#if tagLinks}}
@@ -77,20 +81,31 @@
               {{/each}}
           </ul>
           {{/if}}
-          <p>{{content}}</p>
-        <div class="pure-g p-controls">
-          {{#if canEdit}}
-            <div class="pure-u-1-2">
-              <a class="pure-button button-small action-edit" href="" data-postID="{{sysID}}"><i class="fa fa-pencil"></i> Edit</a>
-              <span class="font-color-gray space-left-1"><i class="fa fa-user"></i> {{rate}}</span>
-            </div>
-          {{else}}
-            <div class="pure-u-1-2">
-              <span class="button-group"><a class="pure-button pure-button-secondary font-weight-bold button-small action-rateup" href="#" data-postID="{{sysID}}">+1</a><a class="pure-button button-small action-ratedown" href="#" data-postID="{{sysID}}">-</a></span><span class="font-color-gray space-left-1"><i class="fa fa-user"></i> {{rate}}</span>
-            </div>
-          {{/if}}
-          <div class="pure-u-1-2 is-right p-indicators">{{#if canEdit}}<span><i class="fa fa-mail-reply"></i> {{replyCount}}</span>{{else}}<a class="pure-button pure-button-secondary button-small action-reply" href="#" data-postID="{{sysID}}"><i class="fa fa-mail-reply"> {{replyCount}}</i></i></a>{{/if}}</div>
         </div>
+        <div class="d-indicator pure-u-1-8">
+          {{#is type "discussion"}}
+          <i class="fa fa-list-ul"></i>
+          {{/is}}
+        </div>
+      </div>
+      
+      <div class="pure-g">
+        <div class="pure-u-1-8"></div>
+        <div class="pure-u-7-8"><p>{{content}}</p></div>
+      </div>
+      <div class="pure-g p-controls">
+        <div class="pure-u-1-8"></div>
+        <div class="pure-u-3-8">
+        {{#if canEdit}}
+            <a class="pure-button button-small action-edit" href="" data-postID="{{sysID}}"><i class="fa fa-pencil"></i> Edit</a>
+            <span class="font-color-gray space-left-1"><i class="fa fa-user"></i> {{rate}}</span>
+        {{else}}
+            <span class="button-group"><a class="pure-button pure-button-secondary font-weight-bold button-small action-rateup" href="#" data-postID="{{sysID}}">+1</a><a class="pure-button button-small action-ratedown" href="#" data-postID="{{sysID}}">-</a></span><span class="font-color-gray space-left-1"><i class="fa fa-user"></i> {{rate}}</span>
+        {{/if}}
+        </div>
+        <div class="pure-u-1-2 is-right p-indicators">{{#if canEdit}}<span><i class="fa fa-mail-reply"></i> {{replyCount}}</span>{{else}}<a class="pure-button pure-button-secondary button-small action-reply" href="#" data-postID="{{sysID}}"><i class="fa fa-mail-reply"> {{replyCount}}</i></i></a>{{/if}}</div>
+      </div>
+      <div class="p-one pure-g">
         {{#if relatedUsers}}
           <div class="pure-u-1 p-users">
             <ul>
@@ -100,12 +115,8 @@
             </ul>
           </div>
         {{/if}}
-        </div>
-        <div class="d-indicator pure-u-1-8">
-          {{#if type}}
-          <i class="fa fa-list-ul"></i>
-          {{/if}}
-        </div>
+      </div>
+    
     </script>
   
     <script type="text/x-handlebars-template" id="message-template">
