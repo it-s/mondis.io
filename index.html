@@ -59,15 +59,12 @@
         </div>
       </div>
     </script>
-
+    
     <script type="text/x-handlebars-template" id="post-template">
-      {{#is isOpen}}<h1>{{title}}</h1>{{/is}}
       <div class="pure-g">
-        <div class="p-icon pure-u-1-8">
-          <a href="{{authorLink.URL}}"><img alt="{{authorLink.user}}" src="{{authorLink.avatar}}" /></a>
-        </div>
+        <div class="p-icon pure-u-1-8"><a href="{{authorLink.URL}}"><img alt="{{authorLink.user}}" src="{{authorLink.avatar}}" /></a></div>
         <div class="p-box pure-u-3-4">
-          <h3>{{#isANDnot type "discussion" isOpen}}<a href="{{URL}}" class="d-title no-change">{{title}}</a>{{else}}<a href="{{authorLink.URL}}" class="p-title no-change">{{authorLink.user}}</a> says:{{/isANDnot}}</h3>
+          <h3><a href="{{authorLink.URL}}" class="p-title no-change">{{authorLink.user}}</a> says:</h3>
           <span class="font-size-small text-color-gray">
             {{#if parent}}
              under <a href="{{parentLink.URL}}" class="no-change">{{parentLink.title}}</a>
@@ -82,17 +79,9 @@
           </ul>
           {{/if}}
         </div>
-        <div class="d-indicator pure-u-1-8">
-          {{#is type "discussion"}}
-          <i class="fa fa-list-ul"></i>
-          {{/is}}
-        </div>
-      </div>
-      
-      <div class="pure-g">
-        <div class="pure-u-1-8"></div>
-        <div class="pure-u-7-8"><p>{{content}}</p></div>
-      </div>
+        <div class="d-indicator pure-u-1-8"><i class="fa fa-list-ul"></i></div>
+      </div>      
+      <div class="pure-g"><div class="pure-u-1-8"></div><div class="pure-u-7-8"><p>{{content}}</p></div></div>
       <div class="pure-g p-controls">
         <div class="pure-u-1-8"></div>
         <div class="pure-u-3-8">
@@ -115,11 +104,64 @@
             </ul>
           </div>
         {{/if}}
-      </div>
+      </div>    
+    </script>
     
+    <script type="text/x-handlebars-template" id="discussionHead-template">
+      <div class="d-one pure-g">
+        <div class="d-icon pure-u-1-8"><a href="{{authorLink.URL}}"><img alt="{{authorLink.user}}" src="{{authorLink.avatar}}" /></a></div>
+        <div class="d-box pure-u-3-4">
+          <h3><a href="{{URL}}" class="d-title no-change">{{title}}</a></h3>
+          <span class="text-color-gray font-size-small">By <a href="{{authorLink.URL}}" class="d-title no-change">{{authorLink.user}}</a>{{#if parentLink}} under <a href="{{parentLink.URL}}" class="d-title no-change">{{parentLink.title}}</a>{{/if}} on <span class="d-title">{{dateTime}}</span></span>
+          <ul class="f-tags">
+            {{#each tagLinks}}
+              <li><a class="f-tag background-color-red text-color-white" href="{{this.URL}}">{{this.tag}}</a></li>
+            {{/each}}
+          </ul>
+        </div>
+        <div class="d-indicator pure-u-1-8"><i class="fa fa-list-ul"></i></div>
+      </div>
+    </script>
+    
+    <script type="text/x-handlebars-template" id="discussion-template">
+      <div id="{{sysID}}" class="d-one d-content">
+          <h1 class="page-head is-center">{{title}}</h1>
+          <span class="font-size-small text-color-gray">By <a href="{{authorLink.URL}}" class="d-title no-change">{{authorLink.user}}</a>{{#if parentLink}} under <a href="{{parentLink.URL}}" class="d-title no-change">{{parentLink.title}}</a>{{/if}} on <span class="d-title">{{dateTime}}</span></span>
+          <ul class="f-tags">
+              {{#each tagLinks}}
+              <li><a class="f-tag background-color-red text-color-white" href="{{this.URL}}">{{this.tag}}</a></li>
+              {{/each}}
+          </ul>
+      <div class="pure-g">
+        <div class="pure-u-1-1">  
+          <p>{{content}}</p>
+        </div>
+      </div>
+
+      <div class="d-actions pure-g">
+      {{#if canEdit}}
+        <div class="pure-u-1-2">
+          <a class="pure-button button-small action-edit" data-postID="{{sysID}}" href=""><i class="fa fa-pencil"></i> Edit</a>
+          <span class="font-color-gray space-left-1"><i class="fa fa-user"></i> {{rate}}</span>
+        </div>
+      {{else}}
+        <div class="pure-u-1-2">
+          <span class="button-group"><a class="pure-button font-weight-bold pure-button-secondary button-small action-rateup" href="#" data-postID="{{sysID}}">+1</a><a class="pure-button button-small action-ratedown" href="#" data-postID="{{sysID}}">-</a></span><span class="font-color-gray space-left-1"><i class="fa fa-user"></i> {{rate}}</span>
+        </div>
+      {{/if}}
+        <div class="pure-u-1-2 is-right">
+          <a class="pure-button button-small space-right-1 action-follow {{#if isFavorite}}text-color-yellow{{/if}}" href="#" data-postID="{{sysID}}"><i class="fa fa-star"></i></a>
+          <span class="button-group"><a class="pure-button button-small action-discuss" href="#" data-postID="{{sysID}}"><i class="fa fa-plus-circle"></i> Discuss</a><a class="pure-button pure-button-secondary button-small action-reply" href="#" data-postID="{{sysID}}"><i class="fa fa-mail-reply"></i> {{replyCount}}</a></span>
+          </div>
+        </div>
+      </div>
     </script>
   
     <script type="text/x-handlebars-template" id="message-template">
+    
+    </script>
+  
+    <script type="text/x-handlebars-template" id="alert-template">
     
     </script>
   

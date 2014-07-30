@@ -8,6 +8,7 @@ YUI.add('md-app', function (Y) {
     CurrentUser = Y.MONDIS.Models.CurrentUser,
     Users = Y.MONDIS.Models.UserList,
     Posts = Y.MONDIS.Models.PostList,
+    TitleView = Y.MONDIS.Views.Title,
     PostView = Y.MONDIS.Views.Post,
     MessageView = Y.MONDIS.Views.Message,
     UserView = Y.MONDIS.Views.User;
@@ -20,7 +21,7 @@ YUI.add('md-app', function (Y) {
       Y.MONDIS.app = this;
 
       //Set default filter values
-      this.set('filter', {});
+//      this.set('filter', {});
       //We render view every time filter is updated
       this.after("filterChange", this.render, this);
 
@@ -48,33 +49,34 @@ YUI.add('md-app', function (Y) {
 
       return this;
     },
-    renderPageHeader: function (title) {
-      return this.get('pageHeaderTemplate').replace('{{title}}', title);
-    },
     render: function () {
-      var filter = this.get('filter');
       //<<Select right menu item
       var header = this.get('headerContainer'),
-        route = filter.path.toRoute()[0],
+        route = this.getPath().clean(),
         selection = (header.one('a[href*=' + route + ']')) || (header.one('li>a'));
       header.all('li').removeClass('pure-menu-selected');
       //Get current route to place the right highlight
       if (selection) selection.get('parentNode').addClass('pure-menu-selected');
       //Selected>>
       //Render current page content
-      var content = this.get('pageContainer'),
-          currentPost,
-          posts;
+      var filter = this.get('filter'),
+          content = this.get('pageContainer'),
+          currentPost = this.get('posts').get('selected'),
+          posts = this.get('posts').getFilteredList(filter),
+          title = new TitleView();
+      
       content.empty();
-
-      switch (route) {
-        case '':
-          content.append(this.renderPageHeader('Discussions'));
-        case 'posts':
-          currentPost = this.get('currentPost');
-          if(currentPost)
+      
+      //title
+      
+      if(route === 'users' && !filter.slug) { //We are at user page
+        //Show My Info
+        
+      }else{ //We are a forum
+        //Show currently open post if any
+        if(currentPost)
             content.append(new PostView({ model: currentPost }).render().get('container'));
-          posts = this.get('posts').getFilteredList(filter);
+        //Show Content Filter
           if (posts.size()) {
             posts.each(function (post) {
               var postView = new PostView({
@@ -83,63 +85,80 @@ YUI.add('md-app', function (Y) {
               content.append(postView.render().get('container'));
             }, this);
           } else
-            content.append(this.renderPageHeader('It\'s empty!'))
-              .append('<p>No discussions or posts have been found. You should create one.</p>');
-          break;
-        case 'feed':
-          content.append(this.renderPageHeader('My Posts'));
-          break;
-        case 'messages':
-          content.append(this.renderPageHeader('My Messages'));
-
-          break;
-        case 'users':
-          content.append(this.renderPageHeader('User Prefferences'))
-            .append('<p>NOthing here yet</p>');
-          break;
-        default:
-          //We could not find the page we were looking for
-          //Show 404
-          content.append(this.renderPageHeader('System can not find the page you are looking for - 404'))
-            .append('<p>If you think there is a mistake please contact the system administrator.</p>');
+            content.append('<p>No entries have been found. Perhaps You should create one.</p>');
+        //Show post list
       }
+
+//      switch (route) {          
+//        case '':
+//          content.append(this.renderPageHeader('Discussions'));
+//          break;
+//        case 'posts':
+////          content.append(this.renderPageHeader('Discussions'));
+//          if(currentPost)
+//            content.append(new PostView({ model: currentPost }).render().get('container'));
+//          
+//          break;
+//        case 'feed':
+//          content.append(this.renderPageHeader('My Posts'));
+//          break;
+//        case 'messages':
+//          content.append(this.renderPageHeader('My Messages'));
+//
+//          
+//          
+//          if (posts.size()) {
+//            posts.each(function (post) {
+//              var postView = new PostView({
+//                model: post
+//              });
+//              content.append(postView.render().get('container'));
+//            }, this);
+//          } else
+//            content.append(this.renderPageHeader('It\'s empty!'))
+//              .append('<p>No discussions or posts have been found. You should create one.</p>');
+//          break;
+//        case 'users':
+//          content.append(this.renderPageHeader('User Prefferences'))
+//            .append('<p>NOthing here yet</p>');
+//          break;
+//        default:
+//          //We could not find the page we were looking for
+//          //Show 404
+//          content.append(this.renderPageHeader('System can not find the page you are looking for - 404'))
+//            .append('<p>If you think there is a mistake please contact the system administrator.</p>');
+//      }
 
       return this;
     },
+    
+    _route: function (query, params, opts) {
+      opts = opts ||  {};
+      //Update filter
+      this.set('filter', Y.merge(opts, query, params));
+    },    
 
     routePosts: function (req, res) {
       console.log("At posts");
-      this.set('filter', Y.merge({
-        path: req.path
-      }, req.query, req.params));
-    },
-
-    routeMessages: function (req, res) {
-      console.log("At messages");
-      this.set('filter', Y.merge({
-        path: req.path
-      }, req.query, req.params));
+      //Set a post to selected if we are calling it by slug
+      var posts = this.get('posts');      
+      if(req.params.slug) posts.getBySlug(req.params.slug).open();
+      else posts.get('selected')&&posts.get('selected').close();
+      
+      this._route(req.query,  req.params, {path: req.path});
+      
     },
 
     routeUsers: function (req, res) {
       console.log("At users");
-      this.set('filter', {
-        path: req.path
-      });
-    },
-
-    routeUnknown: function (req, res) {
-      console.log("At unknown");
-      this.set('filter', {
-        path: req.path
-      });
+      this._route(req.query,  req.params, {path: req.path});
     }
 
   }, {
     ATTRS: {
       serverRoot: {
         valueFn: function () {
-          return 'http://127.0.0.1:45446/';
+          return 'http://127.0.0.1:50028/';
         }
       },
       //Application settings
@@ -148,8 +167,10 @@ YUI.add('md-app', function (Y) {
         setter: function (query, name) {
           return Y.merge({
             path: '/',
+            name: '',
             type: 'feed',
             author: false,
+            parent: false,
             slug: false,
             sort: 'date',
             dion: 'asc',
@@ -186,26 +207,6 @@ YUI.add('md-app', function (Y) {
           return Y.one('.footer');
         }
       },
-      pageHeaderTemplate: {
-        valueFn: function () {
-          return Y.one('#page-header-template').getHTML();
-        }
-      },
-
-      //Convinience methods
-
-      currentUser: {
-        value: null
-      },
-
-      currentPost: {
-        getter: function () {
-          return this.get('posts').get('currentPost');
-        },
-        setter: function (post, name) {
-          this.get('posts').set('currentPost', post);
-        }
-      },
 
       //Application routing
       serverRouting: {
@@ -216,7 +217,8 @@ YUI.add('md-app', function (Y) {
         value: [
           {
             path: '/',
-            callback: 'routePosts'
+            callback: 'routePosts',
+            name: 'Discussions'
           },
           {
             path: '/posts',
@@ -228,23 +230,37 @@ YUI.add('md-app', function (Y) {
           },
           {
             path: '/feed',
-            callback: 'routePosts'
+            callback: function (req, res) {
+              console.log("At Feed");
+              this._route(req.query,  req.params, {author: Helpers.Me().get('sysID'), path: req.path});
+            },
+            name: 'My Posts'
           },
           {
             path: '/messages',
-            callback: 'routeMessages'
+            callback: function (req, res) {
+              console.log("At messages");
+              this._route(req.query,  req.params, {parent: Helpers.Me().get('sysID'), type: 'message', path: req.path});
+            },
+            name: 'My Messages'
           },
           {
             path: '/users',
-            callback: 'routeUsers'
+            callback: 'routeUsers',
+            name: 'My Information'
           },
           {
             path: '/users/:slug',
-            callback: 'routeUsers'
+            callback: 'routeUsers',
+            name: 'Forum Users'
           },
           {
             path: '*',
-            callback: 'routeUnknown'
+            callback: function (req, res) {
+              console.log("At unknown");
+              this.set('filter', {path: req.path});
+            },
+            name: '404 - Page Not Found'
           }
         ]
       }

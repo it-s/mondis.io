@@ -206,9 +206,6 @@ YUI.add('md-helpers', function (Y) {
       return Y.MONDIS.app.get(name);
     return Y.MONDIS.app.set(name, value);
   }
-  Helpers.Template = function(name) {
-    return Helpers.App.getCompiledTemplate(name);
-  }
   Helpers.Sys = Helpers.App;
   Helpers.Users = function(name, value) {
     var src = Y.MONDIS.app.get('users');    
@@ -240,14 +237,11 @@ YUI.add('md-helpers', function (Y) {
   Helpers.MeTzone = function() {
     return Helpers.Me('timezone');
   }
-  Helpers.Post = function() {
-    var src = Y.MONDIS.app.get('currentPost');    
-    if(typeof(name) == "undefined" && typeof(value) === "undefined")
+  Helpers.Post = function(post) {
+    var src = Y.MONDIS.app.get('posts').get('selected');    
+    if(typeof(post) == "undefined")
       return src;
-    if(src == null) return src;
-    if(typeof(value) == "undefined")
-      return src.get(name);
-    return src.set(name, value);
+    return Y.MONDIS.app.get('posts').set('selected', post);
   } 
 
   // Set this Model List under our custom Y.MVC namespace.

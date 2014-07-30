@@ -53,11 +53,11 @@ YUI.add('md-posts', function (Y) {
     },
 
     open: function () {
-      Helpers.App('currentPost', this);
+      Helpers.Post(this);
     },
 
     close: function () {
-      Helpers.App('currentPost', null);
+      Helpers.Post(null);
     },
 
     //Testers
@@ -565,6 +565,7 @@ YUI.add('md-posts', function (Y) {
         type: 'feed',
         tags: false,
         author: false,
+        parent: false,
         sort: 'date',
         sortDirection: 'asc',
         limit: 10,
@@ -577,11 +578,11 @@ YUI.add('md-posts', function (Y) {
         list = null;
       
       //Check if we have slug to filter under
-      if(opts.slug)
-        this.getBySlug(opts.slug).open();
-      else this.get('currentPost')&&this.get('currentPost').close();
+//      if(opts.slug)
+//        this.getBySlug(opts.slug).open();
+//      else this.get('selected')&&this.get('selected').close();
         
-      open = this.get('currentPost');
+      open = this.get('selected');
 
       //Get the post type we need
       switch (opts.type) {
@@ -693,7 +694,7 @@ YUI.add('md-posts', function (Y) {
 
   }, {
     ATTRS: {
-      currentPost: {
+      selected: {
         value: null
       }
     }

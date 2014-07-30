@@ -3,7 +3,8 @@ YUI.add('md-views', function (Y) {
 
   Y.namespace('MONDIS.Views');
 
-  var postView,
+  var titleView, 
+    postView,
     messageView,
     userView;
 
@@ -66,10 +67,35 @@ YUI.add('md-views', function (Y) {
   });
 
   // -- Todo View -------------------
+  titleView = Y.Base.create('titleView', Y.View, [], {
+    containerTemplate: '<section>',
+    template: Y.Handlebars.compile(Y.one('#page-header-template').getHTML()),
+    initializer: function () {
+      this.after('textChange', this.render, this);
+    },
+    render: function() {
+      var container = this.get('container');
+      container.setHTML(this.template(this.toJSON()));
+    }
+  },{
+    ATTRS:{
+      text: {
+        value: ""
+      }
+    }
+  });
+  Y.MONDIS.Views.Title = titleView;
+  
+  
+  // -- Post View -------------------
   postView = Y.Base.create('postView', Y.View, [], {
     containerTemplate: '<section>',
     // Compile our template using Handlebars.
-    template: Y.Handlebars.compile(Y.one('#post-template').getHTML()),
+    templateDiscussionHead: Y.Handlebars.compile(Y.one('#discussionHead-template').getHTML()),
+    templateDiscussion: Y.Handlebars.compile(Y.one('#discussion-template').getHTML()),
+    templatePost: Y.Handlebars.compile(Y.one('#post-template').getHTML()),
+    templateMessage: Y.Handlebars.compile(Y.one('#message-template').getHTML()),
+    templateAlert: Y.Handlebars.compile(Y.one('#alert-template').getHTML()),
 
     // Bind DOM events for handling changes to a specific Todo,
     // for completion and editing.
@@ -106,43 +132,59 @@ YUI.add('md-views', function (Y) {
     render: function () {
       var container = this.get('container');
       var model = this.get('model');
+      var template;
+      
+      if(model.isDiscussion() && model.isOpen()) template = this.templateDiscussion;
+      if(model.isDiscussion() && !model.isOpen()) template = this.templateDiscussionHead;
+      if(model.isPost()) template = this.templatePost;
+      if(model.isMessage()) template = this.templateMessage;
 
-      container.setHTML(this.template(model.toHandlebars()));
+      container.setHTML(template(model.toHandlebars()));
 
       return this;
     },
 
     // Turn on editing mode for the Todo by exposing the input field.
-    edit: function () {
+    edit: function (e) {
+      if(e) e.halt();
       var container = this.get('container');
       container.addClass('editing');
       container.one('.action-save').on('click', this.save, this);
     },
-    cancel: function () {
+    cancel: function (e) {
+      if(e) e.halt();
       var container = this.get('container');
       container.one('.action-save').detach();
       container.removeClass('editing');
     },
-    save: function () {
-      this.cancel();
+    save: function (e) {
+      this.cancel(e);
       //TODO
     },
-    rateUp: function () {
+    rateUp: function (e) {
+      if(e) e.halt();
+      this.get('model').upRate();
       //TODO
     },
-    rateDn: function () {
+    rateDn: function (e) {
+      if(e) e.halt();
+      this.get('model').downRate();
       //TODO
     },
-    follow: function () {
+    follow: function (e) {
+      if(e) e.halt();
       //TODO
     },
-    discuss: function () {
+    discuss: function (e) {
+      if(e) e.halt();
       //TODO
     },
-    reply: function () {
+    reply: function (e) {
+      if(e) e.halt();
       //TODO
     },
-    destroy: function () {
+    destroy: function (e) {
+      if(e) e.halt();
       //TODO
     }
 
