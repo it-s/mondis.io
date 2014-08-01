@@ -38,7 +38,7 @@ YUI.add('md-app', function (Y) {
 
       users.load();
 
-      posts.after(['add', 'remove', 'reset'], this.render, this);
+      posts.after(['add', 'remove'], this.render, this);
       posts.load();
 
       this.once('ready', function () {
@@ -49,7 +49,8 @@ YUI.add('md-app', function (Y) {
 
       return this;
     },
-    render: function () {
+    render: function (e) {
+      console.log('rendering app')
       //<<Select right menu item
       var header = this.get('headerContainer'),
         route = this.getPath().clean(),
@@ -132,6 +133,33 @@ YUI.add('md-app', function (Y) {
       return this;
     },
     
+    _event: function(e, a, b){
+      console.log('event');
+    },
+    
+    // Bind DOM events for handling changes to a specific Todo,
+    // for completion and editing.
+    events: {
+      '.action-edit': {
+        click: '_event'
+      },
+      '.action-rateup': {
+        click: '_event'
+      },
+      '.action-ratedown': {
+        click: '_event'
+      },
+      '.action-follow': {
+        click: '_event'
+      },
+      '.action-discuss': {
+        click: '_event'
+      },
+      '.action-reply': {
+        click: '_event'
+      }
+    },
+    
     _route: function (query, params, opts) {
       opts = opts ||  {};
       //Update filter
@@ -158,7 +186,7 @@ YUI.add('md-app', function (Y) {
     ATTRS: {
       serverRoot: {
         valueFn: function () {
-          return 'http://127.0.0.1:50028/';
+          return 'http://127.0.0.1:64173/';
         }
       },
       //Application settings

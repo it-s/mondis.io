@@ -124,23 +124,34 @@ YUI.add('md-views', function (Y) {
     // is updated or destroyed.
     initializer: function () {
       var model = this.get('model');
-      model.after('change', this.render, this);
+      model.detach('change').after('change', this.update, this);
     },
 
     // Render this view in our <li> container, and fill it with the
     // data in our Model.
     render: function () {
+      var model = this.get('model');      
+      if(model.view) model.view.destroy({remove:true});      
+      this.update();
+      model.view = this;      
+      return this;
+    },
+    
+    update: function () {
+      
       var container = this.get('container');
       var model = this.get('model');
       var template;
+      
+      console.log("Rendering "+model.get('sysID'));
       
       if(model.isDiscussion() && model.isOpen()) template = this.templateDiscussion;
       if(model.isDiscussion() && !model.isOpen()) template = this.templateDiscussionHead;
       if(model.isPost()) template = this.templatePost;
       if(model.isMessage()) template = this.templateMessage;
 
-      container.setHTML(template(model.toHandlebars()));
-
+      container.setHTML(template(model.toHandlebars()));      
+      
       return this;
     },
 
@@ -183,7 +194,7 @@ YUI.add('md-views', function (Y) {
       if(e) e.halt();
       //TODO
     },
-    destroy: function (e) {
+    remove: function (e) {
       if(e) e.halt();
       //TODO
     }
