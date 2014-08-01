@@ -43,12 +43,12 @@ YUI.add('md-posts', function (Y) {
     //Actions
 
     upRate: function () {
-      this.set('rate', 1);
+      this.set('rate', 1).save();
       Helpers.Me().uprate(this);
     },
 
     downRate: function () {
-      this.set('rate', -1);
+      this.set('rate', -1).save();
       Helpers.Me().downrate(this);
     },
 
@@ -399,6 +399,7 @@ YUI.add('md-posts', function (Y) {
 
     initializer: function() {
       this.after('add', this._AlertUser ,this);
+      this.after('*:change', this.synch ,this);
     },
 
     getBySlug: function (slug) {
