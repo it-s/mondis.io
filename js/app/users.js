@@ -140,12 +140,12 @@ YUI.add('md-users', function (Y) {
     synchAttributes: ['sysID', 'nick', 'timezone', 'avatar', 'lastOnline', 'following', 'rated', 'commented', 'isAdmin'],
 
     //Actions
-    rate: function (post) {
-      //convinience function
-      this.set('rate', post);
-    },
-    uprate: this.rate,
-    downrate: this.rate,
+//    rate: function (post) {
+//      //convinience function
+//      this.set('rate', post);
+//    },
+//    uprate: this.rate,
+//    downrate: this.rate,
 
     //Testers
     isFollowing: function (post) {

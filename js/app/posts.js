@@ -42,15 +42,15 @@ YUI.add('md-posts', function (Y) {
     },
     //Actions
 
-    upRate: function () {
-      this.set('rate', 1).save();
-      Helpers.Me().uprate(this);
-    },
-
-    downRate: function () {
-      this.set('rate', -1).save();
-      Helpers.Me().downrate(this);
-    },
+//    upRate: function () {
+//      this.set('rate', 1);
+//      Helpers.Me().rate(this);
+//    },
+//
+//    downRate: function () {
+//      this.set('rate', -1);
+//      Helpers.Me().rate(this);
+//    },
 
     open: function () {
       Helpers.Post(this);
@@ -399,7 +399,7 @@ YUI.add('md-posts', function (Y) {
 
     initializer: function() {
       this.after('add', this._AlertUser ,this);
-      this.after('*:change', this.synch ,this);
+//      this.after('*:change', this.synch ,this);
     },
 
     getBySlug: function (slug) {

@@ -226,7 +226,7 @@ YUI.add('md-helpers', function (Y) {
     return src.set(name, value);
   }
   Helpers.Me = function(name, value) {
-    var src = Y.MONDIS.app.get('currentUser');    
+    var src = Y.MONDIS.app.get('currentUser');
     if(typeof(name) == "undefined" && typeof(value) === "undefined")
       return src;
     if(src == null) return src;

@@ -133,32 +133,32 @@ YUI.add('md-app', function (Y) {
       return this;
     },
     
-    _event: function(e, a, b){
-      console.log('event');
-    },
+//    _event: function(e, a, b){
+//      console.log('event');
+//    },
     
     // Bind DOM events for handling changes to a specific Todo,
     // for completion and editing.
-    events: {
-      '.action-edit': {
-        click: '_event'
-      },
-      '.action-rateup': {
-        click: '_event'
-      },
-      '.action-ratedown': {
-        click: '_event'
-      },
-      '.action-follow': {
-        click: '_event'
-      },
-      '.action-discuss': {
-        click: '_event'
-      },
-      '.action-reply': {
-        click: '_event'
-      }
-    },
+//    events: {
+//      '.action-edit': {
+//        click: '_event'
+//      },
+//      '.action-rateup': {
+//        click: '_event'
+//      },
+//      '.action-ratedown': {
+//        click: '_event'
+//      },
+//      '.action-follow': {
+//        click: '_event'
+//      },
+//      '.action-discuss': {
+//        click: '_event'
+//      },
+//      '.action-reply': {
+//        click: '_event'
+//      }
+//    },
     
     _route: function (query, params, opts) {
       opts = opts ||  {};
@@ -184,12 +184,12 @@ YUI.add('md-app', function (Y) {
 
   }, {
     ATTRS: {
+      //Application settings
       serverRoot: {
         valueFn: function () {
-          return 'http://127.0.0.1:64173/';
+          return location.protocol + "//" + location.hostname + (location.port && ":" + location.port) + "/";
         }
       },
-      //Application settings
       filter: {
         value: false,
         setter: function (query, name) {
@@ -212,6 +212,9 @@ YUI.add('md-app', function (Y) {
         }
       },
       //Application data
+      currentUser: {
+        value: null
+      },
       users: {
         value: null
       },
@@ -250,6 +253,10 @@ YUI.add('md-app', function (Y) {
           },
           {
             path: '/posts',
+            callback: 'routePosts'
+          },
+          {
+            path: '/posts/new',
             callback: 'routePosts'
           },
           {
@@ -329,7 +336,7 @@ YUI({
         },
         'md-views': {
           path: 'app/views.js',
-          requires: ['node', 'io', 'view', 'panel', 'handlebars']
+          requires: ['node', 'io', 'view', 'panel', 'handlebars', 'md-helpers']
         },
         'md-app': {
           path: 'app.js',

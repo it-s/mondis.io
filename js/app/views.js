@@ -6,7 +6,8 @@ YUI.add('md-views', function (Y) {
   var titleView, 
     postView,
     messageView,
-    userView;
+    userView,      
+    Helpers = Y.MONDIS.Helpers;
 
   function ___test(a, b) {
     if (b == undefined) return a!=null && a!=undefined && a != 0 && a != "" && a != false;
@@ -174,16 +175,21 @@ YUI.add('md-views', function (Y) {
     },
     rateUp: function (e) {
       if(e) e.halt();
-      this.get('model').upRate();
+//      this.get('model').upRate();
+      this.get('model').set('rate', 1);
+      Helpers.Me().set('rate', this.get('model'));
       //TODO
     },
     rateDn: function (e) {
       if(e) e.halt();
-      this.get('model').downRate();
+//      this.get('model').downRate();
+      this.get('model').set('rate', -1);
+      Helpers.Me().set('rate', this.get('model'));
       //TODO
     },
     follow: function (e) {
       if(e) e.halt();
+      Helpers.Me().set('follow', this.get('model'));      
       //TODO
     },
     discuss: function (e) {
@@ -272,6 +278,6 @@ YUI.add('md-views', function (Y) {
   requires: [
     'view',
     'handlebars',
-    'event-focus'
+    'event-focus', 'md-helpers'
   ]
 });
